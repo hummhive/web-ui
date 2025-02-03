@@ -1,0 +1,18 @@
+[package]
+name = "content"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "content"
+
+[dependencies]
+hdk = { workspace = true }
+holochain_integrity_types = { workspace = true }
+
+serde = { workspace = true }
+
+time_indexing = { workspace = true } 
+zome_utils.workspace = true
+content_integrity = { workspace = true } 
