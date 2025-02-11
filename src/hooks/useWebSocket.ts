@@ -14,7 +14,7 @@ export const useWebSocket = () => {
       try {
         console.log("Connecting to Holo...");
         const holoClient = await WebSdk.connect({
-          chaperoneUrl: "http://127.0.0.1:24274",
+          chaperoneUrl: "https://chaperone.holo.hosting",
           authFormCustomization: {
             appName: "humm-earth-core-happ",
           },
@@ -48,23 +48,23 @@ export const useWebSocket = () => {
 
   const callZomeFunction = async () => {
     console.log("⚡️ callZomeFunction triggered");
-    
+
     if (!client) {
       console.error("❌ WebSocket client is not set yet!");
       setError("WebSocket is not connected.");
       return;
     }
-  
+
     console.log("✅ Client is set, proceeding with Zome call...");
-    
+
     try {
       const listInput = {
         hive_id: "MTczODA5MzYxMTIxMy03OTUyYmZmMmZmOGE4ZGI4",
         content_type: "hummhive-extension-story-v1",
       };
-  
+
       console.log("📡 Calling Zome function with payload:", listInput);
-  
+
       // Call Zome function with better error handling
       const result = await client.callZome({
         role_name: "humm_earth_core",
@@ -72,17 +72,20 @@ export const useWebSocket = () => {
         fn_name: "list_by_hive_link",
         payload: listInput,
       });
-  
+
       if (!result) {
-        throw new Error('Zome call returned no data');
+        throw new Error("Zome call returned no data");
       }
-  
+
       console.log("✅ Zome Function Result:", result);
       setData(result);
-      
     } catch (err) {
       console.error("❌ Zome call failed!", err);
-      setError(`Zome call error: ${err instanceof Error ? err.message : "Unknown error"}`);
+      setError(
+        `Zome call error: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
     }
   };
 
