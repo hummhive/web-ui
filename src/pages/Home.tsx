@@ -1,11 +1,33 @@
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
-import PostCard from '../components/PostCard';
-import { useWebSocket } from '../hooks/useWebSocket';
+import React from "react";
+import { Helmet } from "react-helmet-async";
+import { Link } from 'react-router-dom';
 
-const Home: React.FC = () => {
-  const { data: posts, agentInfo, isConnected, error } = useWebSocket();
+interface WebSocketData {
+  data: any[];
+  agentInfo: any;
+  isConnected: boolean;
+  error: any;
+}
 
+const Home: React.FC<WebSocketData> = ({ data, isConnected, error }) => {
+  const formatter =(dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'long' }).toUpperCase();
+    const year = date.getFullYear();
+  
+    return `${day} ${month} ${year}`;
+  };
+
+  if (error) {
+    return <div>❌ Error: {error}</div>;
+  }
+
+  if (!isConnected) {
+    return <div>Connecting to Holo… Please wait.</div>;
+  }
+
+  
   return (
     <>
       <Helmet>
@@ -14,25 +36,42 @@ const Home: React.FC = () => {
       </Helmet>
 
       <div className="space-y-12">
-        <h1 className="text-4xl font-serif">Latest Stories</h1>
-        
-        <div className="text-sm text-gray-500">
-          {isConnected ? (
-            <div>
-              <p>Connected to Holochain</p>
-              <p>Agent ID: {agentInfo?.id}</p>
-              <p>Agent Available: {agentInfo?.isAvailable ? 'Yes' : 'No'}</p>
-            </div>
-          ) : (
-            <p>Connecting to Holochain...</p>
-          )}
-          {error && <p className="text-red-500">Error: {error}</p>}
-        </div>
-
         <div className="space-y-8">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+          {isConnected ? (
+            <>
+              <h1 className="text-4xl font-serif">Latest Stories</h1>
+              {data.map((post, index) => {
+                try {
+                  const postObject = JSON.parse(post);
+                  const bodyArray = JSON.parse(postObject.body);
+                  const paragraph = bodyArray.find(
+                    (e) => e.type === 'p' && e.children[0]?.text !== ''
+                  );
+                  return (
+                    <article className="group py-8 first:pt-0 border-b border-stone-100/50 dark:border-stone-800/30 last:border-0" key={index}>
+                      <Link to={`/post/${postObject.storyId}`} className="block group-hover:opacity-70 transition-opacity">
+                        <h2 className="text-2xl font-serif mb-2">{postObject.title}</h2>
+                        <div className="text-sm text-stone-400 dark:text-stone-500 mb-3 flex items-center gap-2">
+                          <span>{formatter(postObject.shareConfig.website.sharedAt)}</span>
+                          <span>·</span>
+                          <span>HummHive Team</span>
+                        </div>
+                        <p className="text-stone-600 dark:text-stone-400 leading-relaxed">
+                          {paragraph.children[0].text}
+                        </p>
+                      </Link>
+                    </article>
+                  );
+                } catch (error) {
+                  console.error("Error parsing post:", error);
+                  return null; // or handle the error as needed
+                }
+              })}
+            </>
+          ) : (
+            <p></p>
+          )}
+          {error && <p>Error: {error.message}</p>}
         </div>
       </div>
     </>
