@@ -42,7 +42,7 @@ export function useHoloConnection() {
 
         setAgentInfo(holoClient.agentState);
         setClient(holoClient);
-        setIsConnected(true);
+  
         console.log("✅ Holo connection successful!", holoClient);
         console.log(await holoClient.appInfo());
       } catch (err: any) {
@@ -94,27 +94,15 @@ export function useHoloConnection() {
 
   // -- Automatically call the zome function once connected (no intervals) --
   useEffect(() => {
-    let interval: NodeJS.Timeout;
     if (isConnected && client) {
       console.log("🟢 WebSocket is connected! Waiting 10 seconds before first call...");
-      setTimeout(() => {
         callZomeFunction();
-        interval = setInterval(() => {
-          console.log("🔄 Repeating callZomeFunction...");
-          callZomeFunction();
-        }, 25000);
-      }, 2000);
     } else {
       console.log("🛑 WebSocket is not ready yet...");
     }
-
     return () => {
-      if (interval) {
-        clearInterval(interval);
-        console.log("🛑 Stopped repeating callZomeFunction");
-      }
     };
-  }, [isConnected, client, callZomeFunction]);
+  }, [isConnected, client]);
 
   const handleError = (message: string, err?: any) => {
     console.error(`❌ ${message}`, err);
