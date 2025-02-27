@@ -5,10 +5,12 @@ import { Image, Container } from './styled';
 // import useBlob from '../../../../hooks/useBlob';
 
 const ImageBlock = (props) => {
+  /*
   const { metadata, isLoading, error } = useMetadata(
     props.element.variantMetadataIds.large
   );
-  const blob = useBlob(metadata?.content.hash, metadata?.content.secretKey);
+  */
+  // const blob = useBlob(metadata?.content.hash, metadata?.content.secretKey);
 
   const [height, setHeight] = React.useState(null);
   const ref = React.useRef(null);
@@ -25,14 +27,11 @@ const ImageBlock = (props) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [ref.current]);
 
-  const src = props.element.src || blob.blob;
+  const src = props.element.src;
 
   return (
     <Container ref={ref} height={height}>
-      {(error && <p>{error}</p>) ||
-        (isLoading && (
-          <Loader size={48} isLoading color="rgba(0, 0, 0, 0.3)" />
-        )) || <Image src={src} />}
+    <Image src={src} />
     </Container>
   );
 };
