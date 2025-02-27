@@ -10,7 +10,8 @@ import OL from "./OL";
 import Quote from "./Quote";
 import Code from "./Code";
 import Divider from "./Divider";
-// import Image from "./Image";
+import Image from "./Image";
+import Video from "./Video";
 
 const Block = props => {
   switch (props.element.type) {
@@ -74,15 +75,23 @@ const Block = props => {
           <Divider {...props} />
         </BlockWrapper>
       );
-      /*
+
+      case "video":
+        return ( 
+          <BlockWrapper attributes={props.attributes} element={props.element}>
+            <Video {...props} />
+            {props.children}
+          </BlockWrapper>
+        );
+      
     case "image":
-      return (
+      return ( 
         <BlockWrapper attributes={props.attributes} element={props.element}>
           <Image {...props} />
           {props.children}
         </BlockWrapper>
       );
-      */
+      
     default:
       return <P {...props}>{props.children}</P>;
   }
