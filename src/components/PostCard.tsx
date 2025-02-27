@@ -1,15 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Post } from '../types';
-import { useTheme } from '../context/ThemeContext';
 
 interface PostCardProps {
   post: Post;
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const { theme } = useTheme();
-  
   return (
     <article className="group py-8 first:pt-0 border-b border-stone-100/50 dark:border-stone-800/30 last:border-0">
       <Link to={`/post/${post.id}`} className="block group-hover:opacity-70 transition-opacity">

@@ -1,6 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 interface WebSocketData {
   data: any[];
@@ -10,6 +11,7 @@ interface WebSocketData {
 }
 
 const Home: React.FC<WebSocketData> = ({ data, isConnected, error }) => {
+  const { theme, setTheme } = useTheme();
   const formatter =(dateString: string) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -27,7 +29,12 @@ const Home: React.FC<WebSocketData> = ({ data, isConnected, error }) => {
     return <div>Connecting to Holo… Please wait.</div>;
   }
 
-  
+  const sortedData = data.sort((a, b) => {
+    const dateA = new Date(JSON.parse(a).shareConfig.website.sharedAt).getTime();
+    const dateB = new Date(JSON.parse(b).shareConfig.website.sharedAt).getTime();
+    return dateB - dateA;
+  });
+
   return (
     <>
       <Helmet>
@@ -37,18 +44,21 @@ const Home: React.FC<WebSocketData> = ({ data, isConnected, error }) => {
 
       <div className="space-y-12">
         <div className="space-y-8">
-          {isConnected ? (
+          {isConnected && data.length > 0 ? (
             <>
               <h1 className="text-4xl font-serif">Latest Stories</h1>
-              {data.map((post, index) => {
+              {sortedData.map((post, index) => {
                 try {
                   const postObject = JSON.parse(post);
                   const bodyArray = JSON.parse(postObject.body);
                   const paragraph = bodyArray.find(
-                    (e) => e.type === 'p' && e.children[0]?.text !== ''
+                    (e: { type: string; children: { text: string }[] }) => e.type === 'p' && e.children[0]?.text !== ''
                   );
+                  if(postObject.title.includes('Holo in Action: HummHive Showcases Website and Newsletter Publishing on Holo via Holochain’s DHT')){
+                    return null;
+                  }
                   return (
-                    <article className="group py-8 first:pt-0 border-b border-stone-100/50 dark:border-stone-800/30 last:border-0" key={index}>
+                    <article className={`group py-8 first:pt-0 border-b ${theme.border} last:border-0 post-${index}`} key={index}>
                       <Link to={`/post/${postObject.storyId}`} className="block group-hover:opacity-70 transition-opacity">
                         <h2 className="text-2xl font-serif mb-2">{postObject.title}</h2>
                         <div className="text-sm text-stone-400 dark:text-stone-500 mb-3 flex items-center gap-2">
@@ -69,7 +79,7 @@ const Home: React.FC<WebSocketData> = ({ data, isConnected, error }) => {
               })}
             </>
           ) : (
-            <p></p>
+            <p>Connected… loading content.</p>
           )}
           {error && <p>Error: {error.message}</p>}
         </div>

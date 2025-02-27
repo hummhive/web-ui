@@ -30,7 +30,7 @@ const Post: React.FC<WebSocketData> = ({ data, isConnected, error  }) => {
     }
   });
 
-  if (!post) return <div>Post not found</div>;
+  if (!post) return <div>Loading content...</div>;
 
   const postObject = JSON.parse(post);
 

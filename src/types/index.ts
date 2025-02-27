@@ -14,6 +14,7 @@ export interface Theme {
   secondary: string;
   background: string;
   text: string;
+  border: string;
 }
 
 export interface WebSocketMessage {

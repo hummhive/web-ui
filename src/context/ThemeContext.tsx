@@ -7,14 +7,16 @@ const themes: Record<string, Theme> = {
     primary: 'bg-white',
     secondary: 'bg-stone-50',
     background: 'bg-white',
-    text: 'text-stone-700'
+    text: 'text-stone-700',
+    border: 'border-stone-500/50',
   },
   dark: {
     name: 'dark',
-    primary: 'bg-stone-950',
-    secondary: 'bg-stone-900',
-    background: 'bg-stone-950',
-    text: 'text-stone-200'
+    primary: 'bg-gray-800',
+    secondary: 'bg-gray-700',
+    background: 'bg-black',
+    text: 'text-white',
+    border: 'border-gray-600/50'
   }
 };
 
