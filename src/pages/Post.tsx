@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Builder from "../Builder";
@@ -12,12 +12,34 @@ interface WebSocketData {
 
 const Post: React.FC<WebSocketData> = ({ data, isConnected, error  }) => {
   const { id } = useParams<{ id: string }>();
+  const [showTimeoutMessage, setShowTimeoutMessage] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTimeoutMessage(true);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [isConnected]);
+
   if (error) {
     return <div>❌ Error: {error}</div>;
   }
 
-  if (!isConnected) {
-    return <div>Connecting to Holo… Please wait.</div>;
+  if (!isConnected && data.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-y-2">
+        <div className="flex items-center gap-x-2">
+          <div className="w-4 h-4 border-2 border-t-transparent border-stone-400 rounded-full animate-spin"></div>
+          <span>Connecting to Holo… Please wait.</span>
+        </div>
+        {showTimeoutMessage && (
+          <div className="text-red-500 text-center">
+The site is taking longer than expected to connect. We’re aware of an issue on some browsers and recommend using Safari or Chrome. If you're still having trouble, try refreshing the page.
+          </div>
+        )}
+      </div>
+    );
   }
 
   const post = data.find((post) => {

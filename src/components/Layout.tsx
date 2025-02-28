@@ -53,11 +53,27 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         {children}
       </main>
 
-      <footer className={`border-t ${theme.border} mt-24`}>
+      <footer className={`border-t ${theme.border} mt-14`}>
         <div className="max-w-3xl mx-auto px-6 py-8">
-          <p className={`text-sm ${theme.text}`}>
-            © {new Date().getFullYear()} HummHive. All rights reserved.
-          </p>
+          <div className="flex justify-between items-center">
+            <p className={`text-sm ${theme.text} whitespace-nowrap`}>
+              © {new Date().getFullYear()} HummHive
+            </p>
+            <div className="text-center">
+              <div className="flex justify-end items-center gap-4">
+              <img 
+                  src="https://humm.earth/images/holochain.png" 
+                  alt="Holochain Logo" 
+                  className="w-1/4 h-auto" 
+                />
+                <img 
+                  src="https://humm.earth/images/holo.png" 
+                  alt="HummHive Logo" 
+                  className="w-1/4 h-auto" 
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

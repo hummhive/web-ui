@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
@@ -12,12 +12,21 @@ interface WebSocketData {
 
 const Home: React.FC<WebSocketData> = ({ data, isConnected, error }) => {
   const { theme, setTheme } = useTheme();
-  const formatter =(dateString: string) => {
+  const [showDelayMessage, setShowDelayMessage] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowDelayMessage(true);
+    }, 10000); // 10 seconds
+
+    return () => clearTimeout(timer); // Cleanup the timer on unmount
+  }, []);
+
+  const formatter = (dateString: string) => {
     const date = new Date(dateString);
     const day = date.getDate();
     const month = date.toLocaleString('default', { month: 'long' }).toUpperCase();
     const year = date.getFullYear();
-  
     return `${day} ${month} ${year}`;
   };
 
@@ -25,8 +34,20 @@ const Home: React.FC<WebSocketData> = ({ data, isConnected, error }) => {
     return <div>❌ Error: {error}</div>;
   }
 
-  if (!isConnected) {
-    return <div>Connecting to Holo… Please wait.</div>;
+  if (!isConnected && data.length === 0) {
+    return (
+      <div className="flex flex-col items-start gap-y-2">
+        <div className="flex items-center gap-x-2">
+          <div className="w-4 h-4 border-2 border-t-transparent border-stone-400 rounded-full animate-spin"></div>
+          <span>Connecting to Holo… Please wait.</span>
+        </div>
+        {showDelayMessage && (
+          <p className="text-sm text-stone-600">
+The site is taking longer than expected to connect. We’re aware of an issue on some browsers and recommend using Safari or Chrome. If you're still having trouble, try refreshing the page.
+          </p>
+        )}
+      </div>
+    );
   }
 
   const sortedData = data.sort((a, b) => {
@@ -54,9 +75,6 @@ const Home: React.FC<WebSocketData> = ({ data, isConnected, error }) => {
                   const paragraph = bodyArray.find(
                     (e: { type: string; children: { text: string }[] }) => e.type === 'p' && e.children[0]?.text !== ''
                   );
-                  if(postObject.title.includes('Holo in Action: HummHive Showcases Website and Newsletter Publishing on Holo via Holochain’s DHT')){
-                    return null;
-                  }
                   return (
                     <article className={`group py-8 first:pt-0 border-b ${theme.border} last:border-0 post-${index}`} key={index}>
                       <Link to={`/post/${postObject.storyId}`} className="block group-hover:opacity-70 transition-opacity">
@@ -81,7 +99,7 @@ const Home: React.FC<WebSocketData> = ({ data, isConnected, error }) => {
           ) : (
             <p>Connected… loading content.</p>
           )}
-          {error && <p>Error: {error.message}</p>}
+          {error && <p>The site is taking longer than expected to connect. We’re aware of an issue on some browsers and recommend using Safari or Chrome. If you're still having trouble, try refreshing the page.</p>}
         </div>
       </div>
     </>

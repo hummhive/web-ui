@@ -1,10 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import WebSdk from "@holo-host/web-sdk";
 
 interface AgentState {
   isAvailable: boolean;
   agentPubKey?: string;
-  // ... add other fields if you need them
 }
 
 interface ListInput {
@@ -12,21 +11,16 @@ interface ListInput {
   content_type: string;
 }
 
-/**
- * A production-friendly hook for:
- * 1) Connecting to the Holo Web SDK (no blocking loops)
- * 2) Tracking agent availability via event listeners
- * 3) Providing a built-in zome function call (with filtering/decoding)
- */
+
 export function useHoloConnection() {
-  // -- React State --
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<string[]>([]);
   const [agentInfo, setAgentInfo] = useState<AgentState | null>(null);
   const [client, setClient] = useState<WebSdk | null>(null);
 
-  // -- Connect to Holo on Mount --
+  const hasCalledZomeFunctionRef = useRef(false);
+
   useEffect(() => {
     const connectToHolo = async () => {
       try {
@@ -52,13 +46,9 @@ export function useHoloConnection() {
 
     connectToHolo();
 
-    return () => {
-      console.log("🛑 Cleaning up WebSocket connection...");
-      setIsConnected(false);
-    };
   }, []);
 
-  // -- The core logic for calling the Zome function --
+
   const callZomeFunction = useCallback(async () => {
     if (!client) {
       handleError("WebSocket client is not set yet!");
@@ -92,16 +82,17 @@ export function useHoloConnection() {
     }
   }, [client]);
 
-  // -- Automatically call the zome function once connected (no intervals) --
+
   useEffect(() => {
-    if (isConnected && client) {
-      console.log("🟢 WebSocket is connected! Waiting 10 seconds before first call...");
-        callZomeFunction();
+    if (isConnected && client && !hasCalledZomeFunctionRef.current) {
+      console.log("🟢 WebSocket is connected! Calling Zome function...");
+      callZomeFunction();
+      hasCalledZomeFunctionRef.current = true;
     } else {
-      console.log("🛑 WebSocket is not ready yet...");
+      console.log(isConnected);
+      console.log(client);
+      console.log("🛑 WebSocket is not ready yet or Zome function already called...");
     }
-    return () => {
-    };
   }, [isConnected, client]);
 
   const handleError = (message: string, err?: any) => {
@@ -122,7 +113,7 @@ export function useHoloConnection() {
     });
   };
 
-  // -- Return everything needed by your components --
+
   return {
     isConnected,
     error,
