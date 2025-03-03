@@ -84,16 +84,12 @@ export function useHoloConnection() {
 
 
   useEffect(() => {
-    if (isConnected && client && !hasCalledZomeFunctionRef.current) {
-      console.log("🟢 WebSocket is connected! Calling Zome function...");
+    const shouldCallZome = isConnected && client && !hasCalledZomeFunctionRef.current;
+    if (shouldCallZome) {
       callZomeFunction();
       hasCalledZomeFunctionRef.current = true;
-    } else {
-      console.log(isConnected);
-      console.log(client);
-      console.log("🛑 WebSocket is not ready yet or Zome function already called...");
     }
-  }, [isConnected, client]);
+  }, [isConnected, client, callZomeFunction]);
 
   const handleError = (message: string, err?: any) => {
     console.error(`❌ ${message}`, err);
