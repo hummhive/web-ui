@@ -15,7 +15,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               HummHive
             </Link>
             <div className="flex items-center gap-8">
-            <a 
+              <a 
                 href="https://humm.earth" 
                 className="hover:text-stone-500 dark:hover:text-stone-300 transition-colors"
               >
@@ -28,22 +28,24 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               >
                 {theme.name === 'light' ? <Moon size={18} /> : <Sun size={18} />}
               </button>
-              <a 
-                href="https://x.com/hummearth" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-stone-500 dark:hover:text-stone-300 transition-colors"
-              >
-                <Twitter size={18} />
-              </a>
-              <a 
-                href="https://github.com/hummhive/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-stone-500 dark:hover:text-stone-300 transition-colors"
-              >
-                <Github size={18} />
-              </a>
+              <div className="hidden sm:flex items-center gap-8">
+                <a 
+                  href="https://x.com/hummearth" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-stone-500 dark:hover:text-stone-300 transition-colors"
+                >
+                  <Twitter size={18} />
+                </a>
+                <a 
+                  href="https://github.com/hummhive/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-stone-500 dark:hover:text-stone-300 transition-colors"
+                >
+                  <Github size={18} />
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -55,21 +57,21 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
       <footer className={`border-t ${theme.border} mt-14`}>
         <div className="max-w-3xl mx-auto px-6 py-8">
-          <div className="flex justify-between items-center">
-            <p className={`text-sm ${theme.text} whitespace-nowrap`}>
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <p className={`text-sm ${theme.text} whitespace-nowrap mb-4 sm:mb-0`}>
               © {new Date().getFullYear()} HummHive
             </p>
             <div className="text-center">
               <div className="flex justify-end items-center gap-4">
-              <img 
+                <img 
                   src="https://humm.earth/images/holochain.png" 
                   alt="Holochain Logo" 
-                  className="w-1/4 h-auto" 
+                  className="w-1/2 sm:w-1/4 h-auto" 
                 />
                 <img 
                   src="https://humm.earth/images/holo.png" 
                   alt="HummHive Logo" 
-                  className="w-1/4 h-auto" 
+                  className="w-1/2 sm:w-1/4 h-auto" 
                 />
               </div>
             </div>
