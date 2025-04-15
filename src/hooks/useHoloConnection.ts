@@ -1,45 +1,58 @@
 import { useEffect, useState } from "react";
-import WebSdk from "@holo-host/web-sdk";
 
-interface AgentState {
-  isAvailable: boolean;
-  agentPubKey?: string;
-}
-
-type UseHoloConnectionOutput = {
-  holoClient: WebSdk | null;
-  isConnected: boolean;
-  error: string | null;
-};
-
-export function useHoloConnection(): UseHoloConnectionOutput {
-  const [isConnected, setIsConnected] = useState(false);
+export function useHoloConnection() {
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [client, setClient] = useState<WebSdk | null>(null);
+  const [stories, setStories] = useState<string[]>([]);
 
   useEffect(() => {
-    const connectToHolo = async () => {
+    const fetchData = async () => {
       try {
-        console.log("🔗 Connecting to Holo...");
-        const holoClient = await WebSdk.connect({
-          chaperoneUrl: "https://chaperone.holo.hosting",
-          authFormCustomization: { appName: "humm-earth-core-happ" },
+        setIsLoading(true);
+        console.log("🔗 Fetching data from Holo API...");
+        
+        // Create input object matching the curl command
+        const inputObj = {
+          hive_id: import.meta.env.VITE_HIVE_ID || "MTc0MTA4ODg5NDA5Ni1iZmVjZGEwZDUxYTMxMjgz",
+          content_type: "hummhive-extension-story-v1"
+        };
+        
+        // Create JSON string without newlines (equivalent to echo -n)
+        const jsonString = JSON.stringify(inputObj);
+        
+        // Base64 encode the JSON string (equivalent to base64 -i -w0)
+        const payload = btoa(jsonString);
+        
+        // Use the API URL structure from the curl command
+        const apiUrl = `https://${import.meta.env.VITE_WEB_BRIDGE_URL}/content/list_by_hive_link?payload=${payload}`;
+        
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
 
-        holoClient.on("agent-state", (agent_state: AgentState) => {
-          if (agent_state.isAvailable) {
-            console.log("✅ Holo connection successful!", holoClient);
+        if (!response.ok) {
+          throw new Error(`API request failed with status: ${response.status}`);
+        }
 
-            setIsConnected(agent_state.isAvailable);
-            setClient(holoClient);
-          }
-        });
+        const result = await response.json();
+        
+        if (!result || !Array.isArray(result)) {
+          throw new Error("API returned no data or invalid format");
+        }
+        const filteredData = filterObjectsWithReaderWildcard(result);
+        const publicContent = decodeContent(filteredData);
+        setStories(publicContent);
       } catch (err: any) {
-        handleError("Holo connection failed", err);
+        handleError("API request failed", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    connectToHolo();
+    fetchData();
   }, []);
 
   const handleError = (message: string, err?: any) => {
@@ -53,9 +66,27 @@ export function useHoloConnection(): UseHoloConnectionOutput {
     setError(`Error: ${errorMessage}`);
   };
 
+  const filterObjectsWithReaderWildcard = (array: any[]): any[] => {
+    return array.filter(item => item.encrypted_content?.header?.acl?.reader?.includes("*"));
+  };
+
+  const decodeContent = (array: any[]): string[] => {
+    const textDecoder = new TextDecoder();
+    return array.map(item => {
+      const bytes = item.encrypted_content?.bytes;
+      console.log("🔍 Bytes:", bytes);
+      if (bytes && Array.isArray(bytes)) {
+        return textDecoder.decode(Uint8Array.from(bytes));
+      } else if (bytes instanceof Uint8Array || bytes instanceof ArrayBuffer) {
+        return textDecoder.decode(bytes);
+      }
+      return '';
+    });
+  };
+
   return {
-    holoClient: client,
-    isConnected,
+    isLoading,
     error,
+    stories,
   };
 }
