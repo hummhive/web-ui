@@ -5,11 +5,9 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Post from "./pages/Post";
 import { useHoloConnection } from "./hooks/useHoloConnection";
-import { useStories } from "./hooks/useStories";
 
 function App() {
-  const { holoClient, error: holoError, isConnected } = useHoloConnection();
-  const { stories, isFetching, error: storiesError } = useStories(holoClient);
+  const { isLoading, error: holoError, stories } = useHoloConnection();
 
   return (
     <HelmetProvider>
@@ -22,9 +20,8 @@ function App() {
                 element={
                   <Home
                     stories={stories}
-                    isConnected={isConnected}
-                    isLoadingStories={isFetching}
-                    error={storiesError || holoError}
+                    isLoading={isLoading}
+                    error={holoError}
                   />
                 }
               />
@@ -33,9 +30,8 @@ function App() {
                 element={
                   <Post
                     stories={stories}
-                    isConnected={isConnected}
-                    isLoadingStories={isFetching}
-                    error={storiesError || holoError}
+                    isLoading={isLoading}
+                    error={holoError}
                   />
                 }
               />

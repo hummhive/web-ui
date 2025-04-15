@@ -5,15 +5,13 @@ import { useTheme } from "../context/ThemeContext";
 
 interface HomeProps {
   stories: any[];
-  isConnected: boolean;
-  isLoadingStories: boolean;
+  isLoading: boolean;
   error: any;
 }
 
 const Home: React.FC<HomeProps> = ({
   stories,
-  isConnected,
-  isLoadingStories, // TODO: we can use this to show a loading state
+  isLoading, // TODO: we can use this to show a loading state
   error,
 }) => {
   const { theme } = useTheme();
@@ -41,7 +39,7 @@ const Home: React.FC<HomeProps> = ({
     return <div>❌ Error: {error}</div>;
   }
 
-  if (!isConnected && stories.length === 0) {
+  if (isLoading && stories.length === 0) {
     return (
       <div className="flex flex-col items-start gap-y-2">
         <div className="flex items-center gap-x-2">
@@ -78,7 +76,7 @@ const Home: React.FC<HomeProps> = ({
 
       <div className="space-y-12">
         <div className="space-y-8">
-          {isConnected && stories.length > 0 ? (
+          {isLoading && stories.length > 0 ? (
             <>
               <h1 className="text-4xl font-serif">Latest Stories</h1>
               {sortedData.map((post, index) => {

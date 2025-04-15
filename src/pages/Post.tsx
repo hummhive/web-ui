@@ -5,15 +5,13 @@ import Builder from "../Builder";
 
 type PostProps = {
   stories: any[];
-  isConnected: boolean;
-  isLoadingStories: boolean;
+  isLoading: boolean;
   error: any;
 };
 
 const Post: React.FC<PostProps> = ({
   stories,
-  isLoadingStories, // TODO: we can use this to show a loading state
-  isConnected,
+  isLoading,
   error,
 }) => {
   const { id } = useParams<{ id: string }>();
@@ -25,13 +23,13 @@ const Post: React.FC<PostProps> = ({
     }, 10000);
 
     return () => clearTimeout(timer);
-  }, [isConnected]);
+  }, [isLoading]);
 
   if (error) {
     return <div>❌ Error: {error}</div>;
   }
 
-  if (!isConnected && stories.length === 0) {
+  if (isLoading && stories.length === 0) {
     return (
       <div className="flex flex-col items-center gap-y-2">
         <div className="flex items-center gap-x-2">
